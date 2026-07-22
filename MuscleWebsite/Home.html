@@ -537,34 +537,228 @@ Estimated 1RM: --
 
 
 
-<script>
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+
+import { 
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+signOut,
+onAuthStateChanged
+
+}
+from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+import {
+getFirestore,
+doc,
+setDoc
+}
+from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 
-function toggle(button){
+// Firebase config
 
-let content =
-button.nextElementSibling;
+const firebaseConfig = {
+
+apiKey: "AIzaSyDoknJNYOG5pBffMBp983QRdA0QaD2lgK4",
+
+authDomain: "gymrank-ae600.firebaseapp.com",
+
+projectId: "gymrank-ae600",
+
+storageBucket: "gymrank-ae600.firebasestorage.app",
+
+messagingSenderId: "1017496765594",
+
+appId: "1:1017496765594:web:bff01a0314766f3c61cb23",
+
+measurementId: "G-BH77HYJRJG"
+
+};
 
 
-if(content.style.display==="block"){
+// Initialize Firebase
 
-content.style.display="none";
+const app = initializeApp(firebaseConfig);
 
-button.innerHTML=
-button.innerHTML.replace("▲","▼");
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+
+
+// Make functions available to buttons
+
+window.auth = auth;
+window.db = db;
+
+
+
+// CREATE ACCOUNT
+
+window.signup = async function(){
+
+
+let email =
+document.getElementById("email").value;
+
+
+let password =
+document.getElementById("password").value;
+
+
+
+try{
+
+
+const userCredential =
+await createUserWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+
+const user = userCredential.user;
+
+
+// Create player profile
+
+await setDoc(
+
+doc(db,"users",user.uid),
+
+{
+
+email:user.email,
+
+muscles:{
+
+chest:{
+rank:"Unranked",
+progress:0,
+oneRM:null
+},
+
+shoulders:{
+rank:"Unranked",
+progress:0,
+oneRM:null
+},
+
+legs:{
+rank:"Unranked",
+progress:0,
+oneRM:null
+}
+
+}
+
+}
+
+);
+
+
+alert("Account created!");
+
+}
+
+
+catch(error){
+
+alert(error.message);
+
+}
+
+
+};
+
+
+
+
+// LOGIN
+
+window.login = async function(){
+
+
+let email =
+document.getElementById("email").value;
+
+
+let password =
+document.getElementById("password").value;
+
+
+
+try{
+
+
+await signInWithEmailAndPassword(
+
+auth,
+email,
+password
+
+);
+
+
+alert("Logged in!");
+
+}
+
+
+catch(error){
+
+alert(error.message);
+
+}
+
+
+};
+
+
+
+
+// LOGOUT
+
+window.logout = async function(){
+
+
+await signOut(auth);
+
+alert("Logged out");
+
+};
+
+
+
+
+// Check login status
+
+onAuthStateChanged(auth,(user)=>{
+
+
+if(user){
+
+document.getElementById("status").innerHTML =
+"Logged in as: " + user.email;
+
 
 }
 
 else{
 
-content.style.display="block";
-
-button.innerHTML=
-button.innerHTML.replace("▼","▲");
+document.getElementById("status").innerHTML =
+"Not logged in";
 
 }
 
-}
+
+});
 
 
 </script>
